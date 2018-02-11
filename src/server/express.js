@@ -1,6 +1,5 @@
 import express from "express"
 import path from "path"
-import { request } from "http";
 
 const server = express();
 
