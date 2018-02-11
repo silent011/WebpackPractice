@@ -1,6 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
-
+const htmlPlugin = require('html-webpack-plugin')
 module.exports = {
 	entry: {
 		main: ['./src/main.js']
@@ -39,15 +39,6 @@ module.exports = {
 				test: /\.html$/,
 				use: [
 					{
-						loader: 'file-loader',
-						options: {
-							name: "[name].html"
-						}
-					},
-					{
-						loader: 'extract-loader'
-					},
-					{
 						loader: 'html-loader',
 						options: {
 							attrs: ['img:src']
@@ -70,6 +61,9 @@ module.exports = {
 	},
 	plugins: [
 		new webpack.HotModuleReplacementPlugin(),
-		new webpack.NamedModulesPlugin()
+		new webpack.NamedModulesPlugin(),
+		new htmlPlugin({
+			template: './src/index.html'
+		})
 	]
 }
