@@ -3,7 +3,8 @@ const webpack = require('webpack')
 const htmlPlugin = require('html-webpack-plugin')
 module.exports = {
 	entry: {
-		main: ['react-hot-loader/patch','./src/main.js']
+		main: ['./src/main.js'],
+		ts: ['./src/index.ts']
 	},
 	output: {
 		filename: "[name]-bundle.js",
@@ -30,6 +31,15 @@ module.exports = {
 				exclude: /node_modules/
 			},
 			{
+				test: /\.ts$/,
+				use: [
+					{
+						loader: 'awesome-typescript-loader'
+					}
+				],
+				exclude: /node_modules/
+			},
+			{
 				test: /\.css$/,
 				use: [
 					{loader: 'style-loader'},
@@ -49,7 +59,7 @@ module.exports = {
 				use: [
 					{loader: 'style-loader'},
 					{loader: 'css-loader'},
-					{loader: 'postcss-loader'},
+					{loader: 'postcss-loader', options: {sourceMap: true}},
 					{loader: 'stylus-loader'}
 				]
 			},
