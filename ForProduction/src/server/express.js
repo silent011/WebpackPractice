@@ -1,22 +1,26 @@
 import express from "express"
 import path from "path"
 
-const server = express();
+const server = express()
 
-const webpack = require('webpack')
-const config = require('../../config/webpack.config')
-const compiler = webpack(config)
-const wbHot = require("webpack-hot-middleware")(compiler)
+const isProd = process.env.NODE_ENV === 'production'
+if(!isProd){
+    const webpack = require('webpack')
+    const config = require('../../config/webpack.config')
+    const compiler = webpack(config)
+    const wbHot = require("webpack-hot-middleware")(compiler)
 
-const wbDevMiddleWare = require('webpack-dev-middleware')(compiler, config.devServer)
+    const wbDevMiddleWare = require('webpack-dev-middleware')(compiler, config.devServer)
 
-server.use(wbDevMiddleWare)
-server.use(wbHot)
+    server.use(wbDevMiddleWare)
+    server.use(wbHot)
+}
 
 const staticMiddleware = express.static("dist")
 
 server.use(staticMiddleware)
 
-server.listen(8000, () => {
-    console.log('server listening')
+const PORT = process.env.PORT || 8000
+server.listen(PORT, () => {
+    console.log(`server listening on http://localhost:${PORT}`)
 })

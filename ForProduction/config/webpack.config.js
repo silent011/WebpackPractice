@@ -70,7 +70,7 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new webpack.HotModuleReplacementPlugin(),
+		// new webpack.HotModuleReplacementPlugin(),
 		new webpack.NamedModulesPlugin(),
 		new htmlPlugin({
 			template: './src/index.ejs',
