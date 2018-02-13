@@ -48,6 +48,22 @@ module.exports = {
 				]
 			},
 			{
+				test: /\.pug$/,
+				use: [
+					{loader: 'pug-loader'}
+				]
+			},
+			{
+				test: /\.hbs$/,
+				use: [
+					{
+						loader: 'handlebars-loader',
+						query: {inlineRequires: "/images/"}
+					}
+					
+				]
+			},
+			{
 				test: /\.(jpg|gif|png)$/,
 				use: [
 					{
@@ -64,7 +80,8 @@ module.exports = {
 		new webpack.HotModuleReplacementPlugin(),
 		new webpack.NamedModulesPlugin(),
 		new htmlPlugin({
-			template: './src/index.html'
+			template: './src/index.hbs',
+			title: 'HBS'
 		})
 	]
 }
