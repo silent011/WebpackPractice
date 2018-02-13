@@ -1,6 +1,8 @@
 const path = require('path')
 const webpack = require('webpack')
 const htmlPlugin = require('html-webpack-plugin')
+const ExtractText = require('extract-text-webpack-plugin')
+const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin')
 module.exports = {
 	entry: {
 		main: ['./src/main.js'],
@@ -30,10 +32,15 @@ module.exports = {
 			},
 			{
 				test: /\.css$/,
-				use: [
-					{loader: 'style-loader'},
-					{loader: 'css-loader'}
-				]
+				use: ExtractText.extract({
+					fallback: 'style-loader',
+					use: {
+						loader: 'css-loader',
+						options:{
+							minimize: true
+						}
+					}
+				})
 			},
 				{
 				test: /\.styl$/,
@@ -69,7 +76,15 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new webpack.HotModuleReplacementPlugin(),
+		new OptimizeCssAssets({
+			assetNameRegExp: /\.css$/g,
+			cssProcessor: require('cssnano'),
+			cssProcessorOptions: {
+				discardComments: {removeAll : true}
+			},
+			canPrint: true
+		}),
+		new ExtractText("[name].css"),
 		new webpack.NamedModulesPlugin(),
 		new htmlPlugin({
 			template: './src/index.ejs',

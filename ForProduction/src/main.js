@@ -2,8 +2,9 @@
 // require('react-hot-loader/patch')
 // require('babel-register')
 // require('webpack-hot-middleware/client?reload=true')
-require('./main.styl')
-require('./index.html')
+require('./main.css')
+// require('./index.html')
 require('./app')
+require('./h2.css')
 
   
