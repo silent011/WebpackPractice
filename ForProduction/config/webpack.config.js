@@ -3,7 +3,11 @@ const webpack = require('webpack')
 const htmlPlugin = require('html-webpack-plugin')
 module.exports = {
 	entry: {
-		main: ['./src/main.js'],
+		main: [
+			'webpack-hot-middleware/client?reload=true',
+			'react-hot-loader/patch',	
+			'./src/main.js'
+		],
 	},
 	output: {
 		filename: "[name]-bundle.js",

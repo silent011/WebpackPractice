@@ -3,7 +3,7 @@ const webpack = require('webpack')
 const htmlPlugin = require('html-webpack-plugin')
 const ExtractText = require('extract-text-webpack-plugin')
 const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin')
-module.exports = {
+module.exports = env => ({
 	entry: {
 		main: ['./src/main.js'],
 	},
@@ -88,7 +88,11 @@ module.exports = {
 		new webpack.NamedModulesPlugin(),
 		new htmlPlugin({
 			template: './src/index.ejs',
-			title: 'For Deployment'
-		})
+			title: 'Production'
+		}),
+		new webpack.DefinePlugin({
+			"process.env.NODE_ENV": JSON.stringify(env.NODE_ENV)
+		}),
+		new webpack.optimize.UglifyJsPlugin()
 	]
-}
+})
