@@ -1,3 +1,7 @@
+body{
+    font-family: sans-serif;
+}
+
 .profile{
     display: flex;
     align-items: center;
@@ -13,5 +17,5 @@ img{
 }
 
 h2 {
-    padding: 10%;
+    padding: 2%;
 }

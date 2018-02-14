@@ -1,19 +1,4 @@
-/* test comment */
-
-.profile{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-flow: column;
-    border: 2px solid black;
-    border-radius: 10px;
-}
-img{
-    width: 24%;
-    border-radius: 50%;
-    border: 2px solid red;
-}
-
 h2 {
-    background: red;
+    background: green;
+    text-align: center;
 }

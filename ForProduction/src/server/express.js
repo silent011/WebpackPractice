@@ -24,7 +24,7 @@ server.use(expressStaticGzip('dist',{
     enableBrotli: true
 }))
 
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 5000
 server.listen(PORT, () => {
     console.log(`server listening on http://localhost:${PORT}`)
 })
