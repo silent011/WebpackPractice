@@ -3,6 +3,9 @@ const webpack = require('webpack')
 const htmlPlugin = require('html-webpack-plugin')
 const ExtractText = require('extract-text-webpack-plugin')
 const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin')
+const CompressPlugin = require('compression-webpack-plugin')
+const BrotliPlugin = require('brotli-webpack-plugin')
+
 module.exports = env => ({
 	entry: {
 		main: ['./src/main.js'],
@@ -93,6 +96,10 @@ module.exports = env => ({
 		new webpack.DefinePlugin({
 			"process.env.NODE_ENV": JSON.stringify(env.NODE_ENV)
 		}),
-		new webpack.optimize.UglifyJsPlugin()
+		new webpack.optimize.UglifyJsPlugin(),
+		new CompressPlugin({
+			algorithm: 'gzip'
+		}),
+		new BrotliPlugin()
 	]
 })

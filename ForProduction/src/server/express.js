@@ -16,9 +16,13 @@ if(!isProd){
     server.use(wbHot)
 }
 
-const staticMiddleware = express.static("dist")
+// const staticMiddleware = express.static("dist")
 
-server.use(staticMiddleware)
+// server.use(staticMiddleware)
+const expressStaticGzip = require('express-static-gzip')
+server.use(expressStaticGzip('dist',{
+    enableBrotli: true
+}))
 
 const PORT = process.env.PORT || 8000
 server.listen(PORT, () => {
