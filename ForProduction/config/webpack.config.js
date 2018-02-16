@@ -1,13 +1,19 @@
 const path = require('path')
 const webpack = require('webpack')
 const htmlPlugin = require('html-webpack-plugin')
+
 module.exports = {
 	entry: {
+		vendor:[
+			'react',
+			'lodash',
+			'react-dom'
+		],
 		main: [
 			'webpack-hot-middleware/client?reload=true',
 			'react-hot-loader/patch',	
 			'./src/main.js'
-		],
+		]
 	},
 	output: {
 		filename: "[name]-bundle.js",
@@ -51,6 +57,8 @@ module.exports = {
 			{
 				test: /\.html$/,
 				use: [
+					{loader: 'file-loader', options: {name: '[name].[ext]'}},
+					{loader: 'extract-loader'},
 					{
 						loader: 'html-loader',
 						options: {
@@ -83,7 +91,7 @@ module.exports = {
 		new webpack.NamedModulesPlugin(),
 		new htmlPlugin({
 			template: './src/index.ejs',
-			title: 'For Deployment'
+			title: 'In Development'
 		})
 	]
 }
