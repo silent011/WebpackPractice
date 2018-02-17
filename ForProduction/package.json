@@ -9,7 +9,7 @@
     "build": "webpack --config=config/webpack.prod.js --env.NODE_ENV=production",
     "stats": "webpack --config=config/webpack.prod.js --env.NODE_ENV=production --profile --json > dist/stats.json && webpack-bundle-analyzer dist/stats.json",
     "dev": "nodemon --inspect --watch config --watch src/server src/server/main.js",
-    "prod": "set NODE_ENV=production&& node src/server/main.js"
+    "prod": "node src/server/main.js"
   },
   "keywords": [],
   "author": "",

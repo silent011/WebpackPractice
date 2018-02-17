@@ -8,12 +8,11 @@ const BrotliPlugin = require('brotli-webpack-plugin')
 
 module.exports = env => ({
 	entry: {
+		main: ['./src/main.js'],
 		vendor:[
 			'react',
-			'lodash',
 			'react-dom'
-		],
-		main: ['./src/main.js'],
+		]
 	},
 	output: {
 		filename: "[name]-bundle.js",
@@ -90,6 +89,7 @@ module.exports = env => ({
 		]
 	},
 	plugins: [
+
 		new OptimizeCssAssets({
 			assetNameRegExp: /\.css$/g,
 			cssProcessor: require('cssnano'),
@@ -108,6 +108,10 @@ module.exports = env => ({
 			"process.env.NODE_ENV": JSON.stringify(env.NODE_ENV)
 		}),
 		new webpack.optimize.UglifyJsPlugin(),
+		new webpack.optimize.CommonsChunkPlugin({
+			name:'vendor',
+			minChunks: Infinity
+		}),
 		new CompressPlugin({
 			algorithm: 'gzip'
 		}),
