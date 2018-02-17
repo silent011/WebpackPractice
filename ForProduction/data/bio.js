@@ -1,4 +1,4 @@
 module.exports = {
-    heading: "My Train Blog",
-    bioText: "Hello, welcome to my blog! "
+    heading: "My Training Blog",
+    bioText: "Hello, welcome to the page! "
 }
