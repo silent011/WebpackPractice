@@ -12,6 +12,8 @@ let render = (Component) => {
     )
 }
 
+
+
 render(AppRoot)
 
 if(module.hot){

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import MarkdownData from '../../data/post.md'
+// import MarkdownData from '../../data/post.md'
 
 class AppRoot extends Component {
     constructor (props) {
@@ -39,14 +39,14 @@ class AppRoot extends Component {
                 <h2>{this.props.data.bioText}</h2>
             </section>
             <section className="post">
-                <h3>{ MarkdownData.title }</h3>
-                <h4>{ MarkdownData.author }</h4>
+                {/* <h3>{ 'MarkdownData.title' }</h3>
+                <h4>{ 'MarkdownData.author' }</h4>
                 <div  dangerouslySetInnerHTML={{
-                    __html:MarkdownData.__content
-                }}></div>
+                    __html:MarkdownData
+                }}></div> */}
             </section>
             <section className="counter">
-                <h1>Counte1: { this.state.counter }</h1>
+                <h1>Counter: { this.state.counter }</h1>
                 <button onClick={this.inc}>Increment</button>
             </section>
         </section>
