@@ -1,31 +1,18 @@
 const path = require('path')
 const webpack = require('webpack')
-const htmlPlugin = require('html-webpack-plugin')
 const ExtractText = require('extract-text-webpack-plugin')
-const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin')
-const CompressPlugin = require('compression-webpack-plugin')
-const BrotliPlugin = require('brotli-webpack-plugin')
+const nodeExternals = require('webpack-node-externals')
 
-module.exports = env => ({
-	entry: {
-		main: ['./src/main.js'],
-		vendor:[
-			'react',
-			'react-dom'
-		]
-	},
+module.exports = {
+	name:'server',
+	entry: './src/server/render.js',
 	output: {
-		filename: "[name]-bundle.js",
-		path: path.resolve(__dirname, "../dist")
+		filename: "prod-server-bundle.js",
+		path: path.resolve(__dirname, "../build"),
+		libraryTarget: 'commonjs2'
 	},
-	devServer: {
-		contentBase: "dist",
-		overlay:true,
-		hot: true,
-		stats: {
-			colors: true
-		}
-	},
+	target: 'node',
+	externals: nodeExternals(),
 	module: {
 		rules: [
 			{
@@ -89,32 +76,10 @@ module.exports = env => ({
 		]
 	},
 	plugins: [
-
-		new OptimizeCssAssets({
-			assetNameRegExp: /\.css$/g,
-			cssProcessor: require('cssnano'),
-			cssProcessorOptions: {
-				discardComments: {removeAll : true}
-			},
-			canPrint: true
-		}),
 		new ExtractText("[name].css"),
-		new webpack.NamedModulesPlugin(),
-		new htmlPlugin({
-			template: './src/index.ejs',
-			title: 'Production'
-		}),
+		new webpack.NamedModulesPlugin(), 
 		new webpack.DefinePlugin({
-			"process.env.NODE_ENV": JSON.stringify(env.NODE_ENV)
-		}),
-		new webpack.optimize.UglifyJsPlugin(),
-		new webpack.optimize.CommonsChunkPlugin({
-			name:'vendor',
-			minChunks: Infinity
-		}),
-		new CompressPlugin({
-			algorithm: 'gzip'
-		}),
-		new BrotliPlugin()
+			"process.env.NODE_ENV": JSON.stringify("production")
+		})
 	]
-})
+}

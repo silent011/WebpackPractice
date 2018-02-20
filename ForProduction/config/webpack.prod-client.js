@@ -1,18 +1,18 @@
 const path = require('path')
 const webpack = require('webpack')
 const htmlPlugin = require('html-webpack-plugin')
+const ExtractText = require('extract-text-webpack-plugin')
+const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin')
+const CompressPlugin = require('compression-webpack-plugin')
+const BrotliPlugin = require('brotli-webpack-plugin')
 
 module.exports = {
+	name:'client',
 	entry: {
+		main: ['./src/main.js'],
 		vendor:[
 			'react',
-			'lodash',
 			'react-dom'
-		],
-		main: [
-			'webpack-hot-middleware/client?reload=true',
-			'react-hot-loader/patch',	
-			'./src/main.js'
 		]
 	},
 	output: {
@@ -40,10 +40,15 @@ module.exports = {
 			},
 			{
 				test: /\.css$/,
-				use: [
-					{loader: 'style-loader'},
-					{loader: 'css-loader'}
-				]
+				use: ExtractText.extract({
+					fallback: 'style-loader',
+					use: {
+						loader: 'css-loader',
+						options:{
+							minimize: true
+						}
+					}
+				})
 			},
 				{
 				test: /\.styl$/,
@@ -57,8 +62,6 @@ module.exports = {
 			{
 				test: /\.html$/,
 				use: [
-					{loader: 'file-loader', options: {name: '[name].[ext]'}},
-					{loader: 'extract-loader'},
 					{
 						loader: 'html-loader',
 						options: {
@@ -87,14 +90,27 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new webpack.HotModuleReplacementPlugin(),
+
+		new OptimizeCssAssets({
+			assetNameRegExp: /\.css$/g,
+			cssProcessor: require('cssnano'),
+			cssProcessorOptions: {
+				discardComments: {removeAll : true}
+			},
+			canPrint: true
+		}),
+		new ExtractText("[name].css"),
 		new webpack.NamedModulesPlugin(),
+		new webpack.DefinePlugin({
+			"process.env.NODE_ENV": JSON.stringify("production")
+		}),
+		new webpack.optimize.UglifyJsPlugin(),
 		new webpack.optimize.CommonsChunkPlugin({
-			name: 'vendor'
-		})
-		// new htmlPlugin({
-		// 	template: './src/index.ejs',
-		// 	title: 'In Development'
-		// })
+			name:'vendor',
+		}),
+		new CompressPlugin({
+			algorithm: 'gzip'
+		}),
+		new BrotliPlugin()
 	]
 }

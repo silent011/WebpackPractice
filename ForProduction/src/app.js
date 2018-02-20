@@ -5,9 +5,9 @@ import {AppContainer} from 'react-hot-loader'
 import Data from '../data/bio'
 
 let render = (Component) => {
-    ReactDOM.render(
+    ReactDOM.hydrate(
         <AppContainer>
-            <Component data = {Data} />
+            <Component data={Data}/>
         </AppContainer>, document.getElementById('react-root')
     )
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-// import MarkdownData from '../../data/post.md'
+import MarkdownData from '../../data/post.md'
 
 class AppRoot extends Component {
     constructor (props) {
@@ -31,19 +31,18 @@ class AppRoot extends Component {
         return (
         <section className="main-section">
             <section className="profile">
-                <h1>{this.props.data.heading}</h1>
-                <img src={
-                require('../images/350288-tool.jpg')} alt=""/>
+                <h1>Heading 1</h1>
+                <img src={require('../images/350288-tool.jpg')} alt=""/>
             </section>
             <section>
-                <h2>{this.props.data.bioText}</h2>
+                <h2>Heading 2</h2>
             </section>
             <section className="post">
-                {/* <h3>{ 'MarkdownData.title' }</h3>
-                <h4>{ 'MarkdownData.author' }</h4>
+                <h3>{ MarkdownData.title }</h3>
+                <h4>{ MarkdownData.author }</h4>
                 <div  dangerouslySetInnerHTML={{
-                    __html:MarkdownData
-                }}></div> */}
+                    __html:MarkdownData.__content
+                }}></div>
             </section>
             <section className="counter">
                 <h1>Counter: { this.state.counter }</h1>
