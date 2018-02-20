@@ -1,8 +1,8 @@
 import React from 'react'
 import { Route, Switch, Link } from 'react-router-dom'
-import Profile from './Profile'
-import Gallery from './Gallery'
-import About from './About'
+import universal from 'react-universal-component'
+
+const UniversalComponent = universal(props => import(`./${props.page}`))
 
 export default () => (
         <div>
@@ -12,9 +12,15 @@ export default () => (
             <Link to="/gallery">Gallery</Link>
         </nav>
         <Switch>
-            <Route exact path="/" component={Profile} />
-            <Route path="/about" component={About} />
-            <Route path="/gallery" component={Gallery} />
+            <Route exact path="/">
+                <UniversalComponent page="Profile" />
+            </Route>
+            <Route path="/about">
+                <UniversalComponent page={"About"} />
+            </Route>
+            <Route path="/gallery">
+                <UniversalComponent page="Gallery" />
+            </Route>
         </Switch>
         </div>
 )

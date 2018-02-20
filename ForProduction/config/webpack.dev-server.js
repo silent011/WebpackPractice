@@ -1,7 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
-const ExtractText = require('extract-text-webpack-plugin')
-const nodeExternals = require('webpack-node-externals')
+const externals = require('./node-externals')
 
 module.exports = {
 	name:'server',
@@ -12,7 +11,7 @@ module.exports = {
 		libraryTarget: 'commonjs2'
 	},
 	target: 'node',
-	externals: nodeExternals(),
+	externals,
 	devServer: {
 		contentBase: "dist",
 		overlay:true,
@@ -33,15 +32,9 @@ module.exports = {
 			},
 			{
 				test: /\.css$/,
-				use: ExtractText.extract({
-					fallback: 'style-loader',
-					use: {
-						loader: 'css-loader',
-						options:{
-							minimize: true
-						}
-					}
-				})
+				use: {
+					loader: 'css-loader'
+				}
 			},
 				{
 				test: /\.styl$/,
@@ -69,7 +62,8 @@ module.exports = {
 					{
 						loader: 'file-loader',
 						options: {
-							name: '/images/[name]-[hash:8].[ext]'
+							name: '/images/[name]-[hash:8].[ext]',
+							emitFile: false
 						}
 					}
 				]
@@ -83,7 +77,9 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new ExtractText("[name].css"),
+		new webpack.optimize.LimitChunkCountPlugin({
+			maxChunks:1
+		}),
 		new webpack.NamedModulesPlugin(), 
 		new webpack.DefinePlugin({
 			"process.env.NODE_ENV": JSON.stringify("development")
