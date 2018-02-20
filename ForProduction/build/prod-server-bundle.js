@@ -73,7 +73,77 @@ module.exports = {"title":"My first post","author":"Myself","__content":"<h1 id=
 
 /***/ }),
 
-/***/ "./src/components/AppRoot.js":
+/***/ "./src/components/About.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = __webpack_require__("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function () {
+    return _react2.default.createElement(
+        "section",
+        { className: "about" },
+        _react2.default.createElement(
+            "h1",
+            null,
+            "About"
+        ),
+        _react2.default.createElement(
+            "p",
+            null,
+            "Hi, This is my webpack training website"
+        )
+    );
+};
+
+/***/ }),
+
+/***/ "./src/components/Gallery.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = __webpack_require__("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function () {
+    return _react2.default.createElement(
+        "section",
+        { className: "gallery" },
+        _react2.default.createElement(
+            "h1",
+            null,
+            "Gallry "
+        ),
+        _react2.default.createElement(
+            "p",
+            null,
+            "Hi, This is the gallery page"
+        )
+    );
+};
+
+/***/ }),
+
+/***/ "./src/components/Profile.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -125,13 +195,13 @@ var _post2 = _interopRequireDefault(_post);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var AppRoot = function (_Component) {
-    (0, _inherits3.default)(AppRoot, _Component);
+var Profile = function (_Component) {
+    (0, _inherits3.default)(Profile, _Component);
 
-    function AppRoot(props) {
-        (0, _classCallCheck3.default)(this, AppRoot);
+    function Profile(props) {
+        (0, _classCallCheck3.default)(this, Profile);
 
-        var _this = (0, _possibleConstructorReturn3.default)(this, (AppRoot.__proto__ || (0, _getPrototypeOf2.default)(AppRoot)).call(this, props));
+        var _this = (0, _possibleConstructorReturn3.default)(this, (Profile.__proto__ || (0, _getPrototypeOf2.default)(Profile)).call(this, props));
 
         _this.state = {
             counter: 0
@@ -141,7 +211,7 @@ var AppRoot = function (_Component) {
         return _this;
     }
 
-    (0, _createClass3.default)(AppRoot, [{
+    (0, _createClass3.default)(Profile, [{
         key: 'inc',
         value: function inc() {
             this.changeState({ counter: this.state.counter + 1 });
@@ -169,8 +239,8 @@ var AppRoot = function (_Component) {
         key: 'render',
         value: function render() {
             return _react2.default.createElement(
-                'section',
-                { className: 'main-section' },
+                'div',
+                null,
                 _react2.default.createElement(
                     'section',
                     { className: 'profile' },
@@ -225,10 +295,75 @@ var AppRoot = function (_Component) {
             );
         }
     }]);
-    return AppRoot;
+    return Profile;
 }(_react.Component);
 
-exports.default = AppRoot;
+exports.default = Profile;
+
+/***/ }),
+
+/***/ "./src/components/Routes.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = __webpack_require__("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRouterDom = __webpack_require__("react-router-dom");
+
+var _Profile = __webpack_require__("./src/components/Profile.js");
+
+var _Profile2 = _interopRequireDefault(_Profile);
+
+var _Gallery = __webpack_require__("./src/components/Gallery.js");
+
+var _Gallery2 = _interopRequireDefault(_Gallery);
+
+var _About = __webpack_require__("./src/components/About.js");
+
+var _About2 = _interopRequireDefault(_About);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function () {
+    return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+            'nav',
+            null,
+            _react2.default.createElement(
+                _reactRouterDom.Link,
+                { to: '/' },
+                'Home'
+            ),
+            _react2.default.createElement(
+                _reactRouterDom.Link,
+                { to: '/about' },
+                'About'
+            ),
+            _react2.default.createElement(
+                _reactRouterDom.Link,
+                { to: '/gallery' },
+                'Gallery'
+            )
+        ),
+        _react2.default.createElement(
+            _reactRouterDom.Switch,
+            null,
+            _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/', component: _Profile2.default }),
+            _react2.default.createElement(_reactRouterDom.Route, { path: '/about', component: _About2.default }),
+            _react2.default.createElement(_reactRouterDom.Route, { path: '/gallery', component: _Gallery2.default })
+        )
+    );
+};
 
 /***/ }),
 
@@ -257,17 +392,24 @@ var _server = __webpack_require__("react-dom/server");
 
 var _server2 = _interopRequireDefault(_server);
 
-var _AppRoot = __webpack_require__("./src/components/AppRoot.js");
+var _reactRouter = __webpack_require__("react-router");
 
-var _AppRoot2 = _interopRequireDefault(_AppRoot);
+var _Routes = __webpack_require__("./src/components/Routes.js");
+
+var _Routes2 = _interopRequireDefault(_Routes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function () {
     return function (req, res) {
-        res.send('<html>\n             <head>\n                 <title>My title</title>\n                 <link href="main.css" rel="stylesheet"/>\n             </head>\n             <body>\n                 <div id="react-root">' + _server2.default.renderToString(_react2.default.createElement(_AppRoot2.default, null)) + '</div>\n             </body>\n             <script src="vendor-bundle.js"></script>\n             <script src="main-bundle.js"></script>\n         </html>');
+        res.send('<html>\n             <head>\n                 <title>My title</title>\n                 <link href="main.css" rel="stylesheet"/>\n             </head>\n             <body>\n                 <div id="react-root">' + _server2.default.renderToString(_react2.default.createElement(
+            _reactRouter.StaticRouter,
+            { location: req.url, context: {} },
+            _react2.default.createElement(_Routes2.default, null)
+        )) + '</div>\n             </body>\n             <script src="vendor-bundle.js"></script>\n             <script src="main-bundle.js"></script>\n         </html>');
     };
 };
+// import AppRoot from '../components/AppRoot'
 
 /***/ }),
 
@@ -338,6 +480,20 @@ module.exports = require("react");
 /***/ (function(module, exports) {
 
 module.exports = require("react-dom/server");
+
+/***/ }),
+
+/***/ "react-router":
+/***/ (function(module, exports) {
+
+module.exports = require("react-router");
+
+/***/ }),
+
+/***/ "react-router-dom":
+/***/ (function(module, exports) {
+
+module.exports = require("react-router-dom");
 
 /***/ })
 

@@ -100,9 +100,9 @@ module.exports = {
 		new webpack.optimize.CommonsChunkPlugin({
 			name: 'vendor'
 		}),
-		new htmlPlugin({
-			template: './src/index.ejs',
-			title: 'In Development'
-		})
+		// new htmlPlugin({
+		// 	template: './src/index.ejs',
+		// 	title: 'In Development'
+		// })
 	]
 }
