@@ -1,6 +1,6 @@
 # Playing with Webpack 3
 
-##Includes:
+## Includes:
 - Running development server
 - Hooking webpack with HTML, CSS, Images
 - Adding Babel to webpack and using polyfills, transforms and presets
