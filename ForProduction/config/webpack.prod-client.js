@@ -1,7 +1,7 @@
 const path = require('path')
 const webpack = require('webpack')
 const htmlPlugin = require('html-webpack-plugin')
-const ExtractText = require('extract-text-webpack-plugin')
+const ExtractCssCunks = require('extract-css-chunks-webpack-plugin')
 const OptimizeCssAssets = require('optimize-css-assets-webpack-plugin')
 const CompressPlugin = require('compression-webpack-plugin')
 const BrotliPlugin = require('brotli-webpack-plugin')
@@ -42,13 +42,9 @@ module.exports = {
 			},
 			{
 				test: /\.css$/,
-				use: ExtractText.extract({
-					fallback: 'style-loader',
+				use: ExtractCssCunks.extract({
 					use: {
-						loader: 'css-loader',
-						options:{
-							minimize: true
-						}
+						loader: 'css-loader'
 					}
 				})
 			},
@@ -92,7 +88,7 @@ module.exports = {
 		]
 	},
 	plugins: [
-
+		new ExtractCssCunks(),
 		new OptimizeCssAssets({
 			assetNameRegExp: /\.css$/g,
 			cssProcessor: require('cssnano'),
@@ -101,14 +97,15 @@ module.exports = {
 			},
 			canPrint: true
 		}),
-		new ExtractText("[name].css"),
 		new webpack.NamedModulesPlugin(),
 		new webpack.DefinePlugin({
 			"process.env.NODE_ENV": JSON.stringify("production")
 		}),
 		new webpack.optimize.UglifyJsPlugin(),
 		new webpack.optimize.CommonsChunkPlugin({
-			name:'vendor',
+			name: ["bootstrap"],
+			filename: "[name].js",
+			minChunks: Infinity
 		}),
 		new CompressPlugin({
 			algorithm: 'gzip'

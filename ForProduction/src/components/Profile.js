@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import MarkdownData from '../../data/post.md'
+import '../css/Profile.css'
 
 class Profile extends Component {
     constructor (props) {

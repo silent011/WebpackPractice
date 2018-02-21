@@ -1,7 +1,7 @@
 const path = require('path')
 const webpack = require('webpack')
 const htmlPlugin = require('html-webpack-plugin')
-const ExtractText = require('extract-text-webpack-plugin')
+const ExtractCssCunks = require('extract-css-chunks-webpack-plugin')
 
 module.exports = {
 	name:'client',
@@ -11,8 +11,9 @@ module.exports = {
 			'react-dom'
 		],
 		main: [
+			'react-hot-loader/patch',
+			"babel-runtime/regenerator",
 			'webpack-hot-middleware/client?reload=true',
-			'react-hot-loader/patch',	
 			'./src/main.js'
 		]
 	},
@@ -25,7 +26,7 @@ module.exports = {
 	devServer: {
 		contentBase: "dist",
 		overlay:true,
-		hot: true,
+		//hot: true,
 		stats: {
 			colors: true
 		}
@@ -43,14 +44,11 @@ module.exports = {
 			},
 			{
 				test: /\.css$/,
-				use: ExtractText.extract({
-					fallback: 'style-loader',
+				use: ExtractCssCunks.extract({
 					use: {
 						loader: 'css-loader',
-						options:{
-							minimize: true
-						}
 					}
+				
 				})
 			},
 				{
@@ -95,15 +93,19 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new ExtractText('[name].css'),
-		new webpack.HotModuleReplacementPlugin(),
-		new webpack.NamedModulesPlugin(),
+		new ExtractCssCunks({
+			filename:'[name].css'
+		}),
 		new webpack.optimize.CommonsChunkPlugin({
-			name: 'vendor'
+			name: ["bootstrap"],
+			filename: "[name].js",
+			minChunks: Infinity
 		}),
 		// new htmlPlugin({
 		// 	template: './src/index.ejs',
 		// 	title: 'In Development'
 		// })
+		new webpack.HotModuleReplacementPlugin(),
+		new webpack.NamedModulesPlugin(),
 	]
 }

@@ -1,15 +1,21 @@
 import React from 'react'
 import ReactDOMServer from 'react-dom/server'
 import { StaticRouter } from 'react-router'
-// import AppRoot from '../components/AppRoot'
+import { flushChunkNames } from 'react-universal-component/server'
+import flushChunks from 'webpack-flush-chunks'
+
 import Routes from '../components/Routes'
 
-export default () => (req, res) => {
+export default ({clientStats}) => (req, res) => {
+    const { js, styles, cssHash, } = flushChunks(clientStats, {
+        chunkNames: flushChunkNames()
+    })
+
     res.send(
         `<html>
              <head>
                  <title>My title</title>
-                 <link href="main.css" rel="stylesheet"/>
+                 ${styles}
              </head>
              <body>
                  <div id="react-root">${ReactDOMServer.renderToString(
@@ -18,7 +24,7 @@ export default () => (req, res) => {
                      </StaticRouter>
                  )}</div>
              </body>
-             <script src="vendor-bundle.js"></script>
-             <script src="main-bundle.js"></script>
+             ${js}
+             ${cssHash}
          </html>`)
  }

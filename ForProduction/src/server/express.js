@@ -26,13 +26,14 @@ if(!isProd){
     server.use(webpackHotServerMiddle(compiler))
 } else {
     webpack([configProdClient, configProdServer]).run((err, stats) => {
+        const clientStats = stats.toJson().children[0]
         const render = require('../../build/prod-server-bundle').default
         const expressStaticGzip = require('express-static-gzip')
             server.use(expressStaticGzip('dist',{
                 enableBrotli: true
         }))
 
-        server.use(render())
+        server.use(render( { clientStats }))
     })
     
 }

@@ -2909,6 +2909,89 @@ for (var i = 0; i < DOMIterables.length; i++) {
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/lib/css-base.js":
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+
 /***/ "./node_modules/react-universal-component/dist/index.js":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3617,6 +3700,383 @@ var cacheProm = exports.cacheProm = function cacheProm(pr, chunkName, props, pro
 
 /***/ }),
 
+/***/ "./node_modules/react-universal-component/server.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = {
+  flushModuleIds: __webpack_require__("./node_modules/react-universal-component/dist/requireUniversalModule.js").flushModuleIds,
+  flushChunkNames: __webpack_require__("./node_modules/react-universal-component/dist/requireUniversalModule.js").flushChunkNames,
+  clearChunks: __webpack_require__("./node_modules/react-universal-component/dist/requireUniversalModule.js").clearChunks,
+  ReportChunks: __webpack_require__("./node_modules/react-universal-component/dist/report-chunks.js").default
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/webpack-flush-chunks/dist/createApiWithCss.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createCssHash = exports.stylesAsString = exports.isCss = exports.isJs = exports.getJsFileRegex = undefined;
+
+var _react = __webpack_require__("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _fs = __webpack_require__("fs");
+
+var _fs2 = _interopRequireDefault(_fs);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var DEV = "production" === 'development';
+
+/** CREATE API WITH CSS */
+
+exports.default = function (files, filesOrderedForCss, stats, outputPath) {
+  var publicPath = stats.publicPath.replace(/\/$/, '');
+  var regex = getJsFileRegex(files);
+  var scripts = files.filter(function (file) {
+    return isJs(regex, file);
+  });
+  var stylesheets = filesOrderedForCss.filter(isCss);
+  var cssHashRaw = createCssHash(stats);
+
+  var api = {
+    // 1) Use as React components using ReactDOM.renderToStaticMarkup, eg:
+    // <html><Styles /><Js /><html>
+    Js: function Js() {
+      return _react2.default.createElement(
+        'span',
+        null,
+        scripts.map(function (file, key) {
+          return _react2.default.createElement('script', {
+            type: 'text/javascript',
+            src: publicPath + '/' + file,
+            key: key,
+            defer: true
+          });
+        })
+      );
+    },
+    Styles: function Styles() {
+      return _react2.default.createElement(
+        'span',
+        null,
+        stylesheets.map(function (file, key) {
+          return _react2.default.createElement('link', { rel: 'stylesheet', href: publicPath + '/' + file, key: key });
+        })
+      );
+    },
+
+    // 2) Use as string, eg: `${styles} ${js}`
+    js: {
+      toString: function toString() {
+        return (
+          // lazy-loaded in case not used
+          scripts.map(function (file) {
+            return '<script type=\'text/javascript\' src=\'' + publicPath + '/' + file + '\' defer></script>';
+          }).join('\n')
+        );
+      }
+    },
+    styles: {
+      toString: function toString() {
+        return (
+          // lazy-loaded in case not used
+          stylesheets.map(function (file) {
+            return '<link rel=\'stylesheet\' href=\'' + publicPath + '/' + file + '\' />';
+          }).join('\n')
+        );
+      }
+    },
+
+    // 3) Embed the raw css without needing to load another file.
+    // Use as a React component (<Css />) or a string (`${css}`):
+    // NOTE: during development, HMR requires stylesheets.
+    Css: function Css() {
+      return DEV ? api.Styles() : _react2.default.createElement(
+        'span',
+        null,
+        _react2.default.createElement(
+          'style',
+          null,
+          stylesAsString(stylesheets, outputPath)
+        )
+      );
+    },
+    css: {
+      toString: function toString() {
+        return (
+          // lazy-loaded in case not used
+          DEV ? api.styles.toString() : '<style>' + stylesAsString(stylesheets, outputPath) + '</style>'
+        );
+      }
+    },
+
+    // 4) names of files without publicPath or outputPath prefixed:
+    scripts: scripts,
+    stylesheets: stylesheets,
+
+    // 5) for completeness provide the paths even though they were inputs:
+    publicPath: publicPath,
+    outputPath: outputPath,
+
+    // 6) special goodness for dual-file import()
+    cssHashRaw: cssHashRaw,
+    CssHash: function CssHash() {
+      return _react2.default.createElement('script', {
+        type: 'text/javascript',
+        dangerouslySetInnerHTML: {
+          __html: 'window.__CSS_CHUNKS__ = ' + JSON.stringify(cssHashRaw)
+        }
+      });
+    },
+    cssHash: {
+      toString: function toString() {
+        return '<script type=\'text/javascript\'>window.__CSS_CHUNKS__= ' + JSON.stringify(cssHashRaw) + '</script>';
+      }
+    }
+  };
+
+  return api;
+};
+
+/** HELPERS */
+
+var getJsFileRegex = exports.getJsFileRegex = function getJsFileRegex(files) {
+  var isUsingExtractCssChunk = !!files.find(function (file) {
+    return file.includes('no_css');
+  });
+  return isUsingExtractCssChunk ? /\.no_css\.js$/ : /\.js$/;
+};
+
+var isJs = exports.isJs = function isJs(regex, file) {
+  return regex.test(file) && !/\.hot-update\.js$/.test(file);
+};
+
+var isCss = exports.isCss = function isCss(file) {
+  return (/\.css$/.test(file)
+  );
+};
+
+var stylesAsString = exports.stylesAsString = function stylesAsString(stylesheets, outputPath) {
+  if (!outputPath) {
+    throw new Error('No `outputPath` was provided as an option to `flushChunks`. \n      Please provide one so stylesheets can be read from the\n      file system since you\'re embedding the css as a string.');
+  }
+
+  var path = outputPath.replace(/\/$/, '');
+
+  return stylesheets.map(function (file) {
+    var filePath = path + '/' + file;
+    return _fs2.default.readFileSync(filePath, 'utf8');
+  }).join('\n').replace(/\/\*# sourceMappingURL=.+\*\//g, ''); // hide prod sourcemap err
+};
+
+var createCssHash = exports.createCssHash = function createCssHash(_ref) {
+  var assetsByChunkName = _ref.assetsByChunkName,
+      publicPath = _ref.publicPath;
+  return Object.keys(assetsByChunkName).reduce(function (hash, name) {
+    if (!assetsByChunkName[name] || !assetsByChunkName[name].find) return hash;
+    var file = assetsByChunkName[name].find(function (file) {
+      return file.endsWith('.css');
+    });
+    if (file) hash[name] = '' + publicPath + file;
+    return hash;
+  }, {});
+};
+
+/***/ }),
+
+/***/ "./node_modules/webpack-flush-chunks/dist/flushChunks.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.filesFromChunks = exports.concatFilesAtKeys = exports.normalizePath = exports.isUnique = exports.createFilesByModuleId = exports.createFilesByPath = exports.flushWebpack = exports.flushBabel = exports.flush = exports.flushFilesPure = exports.flushFiles = exports.flushChunks = undefined;
+
+var _createApiWithCss = __webpack_require__("./node_modules/webpack-flush-chunks/dist/createApiWithCss.js");
+
+var _createApiWithCss2 = _interopRequireDefault(_createApiWithCss);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var filesByPath = null;
+var filesByModuleId = null;
+
+var IS_WEBPACK = typeof __webpack_require__ !== 'undefined';
+var IS_TEST = "production" === 'test';
+var defaults = {
+  before: ['bootstrap', 'vendor'],
+  after: ['main']
+};
+
+/** PUBLIC API */
+
+exports.default = function (stats, opts) {
+  return flushChunks(stats, IS_WEBPACK, opts);
+};
+
+var flushChunks = function flushChunks(stats, isWebpack) {
+  var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  var beforeEntries = opts.before || defaults.before;
+  var jsBefore = filesFromChunks(beforeEntries, stats.assetsByChunkName);
+
+  var files = opts.chunkNames ? filesFromChunks(opts.chunkNames, stats.assetsByChunkName, true) : flush(opts.moduleIds || [], stats, opts.rootDir, isWebpack);
+
+  var afterEntries = opts.after || defaults.after;
+  var jsAfter = filesFromChunks(afterEntries, stats.assetsByChunkName);
+
+  return (0, _createApiWithCss2.default)([].concat(_toConsumableArray(jsBefore), _toConsumableArray(files), _toConsumableArray(jsAfter)), [].concat(_toConsumableArray(jsBefore), _toConsumableArray(jsAfter.reverse()), _toConsumableArray(files)), stats, opts.outputPath);
+};
+
+var flushFiles = function flushFiles(stats, opts) {
+  return flushFilesPure(stats, IS_WEBPACK, opts);
+};
+
+var flushFilesPure = function flushFilesPure(stats, isWebpack, opts) {
+  var files = opts.chunkNames ? filesFromChunks(opts.chunkNames, stats.assetsByChunkName) : flush(opts.moduleIds || [], stats, opts.rootDir, isWebpack);
+
+  var filter = opts.filter;
+
+  if (filter) {
+    if (typeof filter === 'function') {
+      return files.filter(filter);
+    }
+
+    var regex = filter instanceof RegExp ? filter : new RegExp('.' + filter + '$');
+    return files.filter(function (file) {
+      return regex.test(file);
+    });
+  }
+
+  return files;
+};
+
+/** BABEL VS. WEBPACK FLUSHING */
+
+var flush = function flush(moduleIds, stats, rootDir, isWebpack) {
+  return !isWebpack ? flushBabel(moduleIds, stats, rootDir).filter(isUnique) : flushWebpack(moduleIds, stats).filter(isUnique);
+};
+
+var flushBabel = function flushBabel(paths, stats, rootDir) {
+  if (!rootDir) {
+    throw new Error('No `rootDir` was provided as an option to `flushChunks`.\n      Please provide one so modules rendered server-side can be\n      paired to their webpack equivalents client-side, and their\n      corresponding chunks.');
+  }
+
+  var dir = rootDir; // satisfy flow
+
+  filesByPath = filesByPath && !IS_TEST ? filesByPath // cached
+  : createFilesByPath(stats);
+
+  return concatFilesAtKeys(filesByPath, paths.map(function (p) {
+    return normalizePath(p, dir);
+  }));
+};
+
+var flushWebpack = function flushWebpack(ids, stats) {
+  filesByModuleId = filesByModuleId && !IS_TEST ? filesByModuleId // cached
+  : createFilesByModuleId(stats);
+
+  return concatFilesAtKeys(filesByModuleId, ids);
+};
+
+/** CREATE FILES MAP */
+
+var createFilesByPath = function createFilesByPath(_ref) {
+  var chunks = _ref.chunks,
+      modules = _ref.modules;
+
+  var filesByChunk = chunks.reduce(function (chunks, chunk) {
+    chunks[chunk.id] = chunk.files;
+    return chunks;
+  }, {});
+
+  return modules.reduce(function (filesByPath, module) {
+    var filePath = module.name;
+    var files = concatFilesAtKeys(filesByChunk, module.chunks);
+
+    filesByPath[filePath] = files.filter(isUnique);
+    return filesByPath;
+  }, {});
+};
+
+var createFilesByModuleId = function createFilesByModuleId(stats) {
+  var filesByPath = createFilesByPath(stats);
+
+  return stats.modules.reduce(function (filesByModuleId, module) {
+    var filePath = module.name;
+    var id = module.id;
+
+    filesByModuleId[id] = filesByPath[filePath];
+    return filesByModuleId;
+  }, {});
+};
+
+/** HELPERS */
+
+var isUnique = function isUnique(v, i, self) {
+  return self.indexOf(v) === i;
+};
+
+var normalizePath = function normalizePath(path, rootDir) {
+  return path.replace(rootDir, '.').replace(/\.js$/, '') + '.js';
+};
+
+var concatFilesAtKeys = function concatFilesAtKeys(inputFilesMap, pathsOrIdsOrChunks) {
+  return pathsOrIdsOrChunks.reduce(function (files, key) {
+    return files.concat(inputFilesMap[key] || []);
+  }, []);
+};
+
+var filesFromChunks = function filesFromChunks(chunkNames, assets, checkChunkNames) {
+  var _ref2;
+
+  var hasChunk = function hasChunk(entry) {
+    var result = !!(assets[entry] || assets[entry + '-']);
+    if (!result && checkChunkNames) {
+      console.warn('[FLUSH CHUNKS]: Unable to find ' + entry + ' in Webpack chunks. Please check usage of Babel plugin.');
+    }
+
+    return result;
+  };
+
+  var entryToFiles = function entryToFiles(entry) {
+    return assets[entry] || assets[entry + '-'];
+  };
+
+  return (_ref2 = []).concat.apply(_ref2, _toConsumableArray(chunkNames.filter(hasChunk).map(entryToFiles)));
+};
+
+/** EXPORTS FOR TESTS */
+
+exports.flushChunks = flushChunks;
+exports.flushFiles = flushFiles;
+exports.flushFilesPure = flushFilesPure;
+exports.flush = flush;
+exports.flushBabel = flushBabel;
+exports.flushWebpack = flushWebpack;
+exports.createFilesByPath = createFilesByPath;
+exports.createFilesByModuleId = createFilesByModuleId;
+exports.isUnique = isUnique;
+exports.normalizePath = normalizePath;
+exports.concatFilesAtKeys = concatFilesAtKeys;
+exports.filesFromChunks = filesFromChunks;
+
+/***/ }),
+
 /***/ "./node_modules/webpack/buildin/module.js":
 /***/ (function(module, exports) {
 
@@ -3755,21 +4215,23 @@ var _react = __webpack_require__("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+__webpack_require__("./src/css/About.css");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function () {
     return _react2.default.createElement(
-        "section",
-        { className: "about" },
+        'section',
+        { className: 'about' },
         _react2.default.createElement(
-            "h1",
+            'h1',
             null,
-            "About"
+            'About'
         ),
         _react2.default.createElement(
-            "p",
+            'p',
             null,
-            "Hi, This is my webpack training website"
+            'Hi, This is my webpack training website'
         )
     );
 };
@@ -3877,6 +4339,8 @@ var _react = __webpack_require__("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+__webpack_require__("./src/css/Gallery.css");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var getBundle = function getBundle() {
@@ -3971,6 +4435,8 @@ var _react2 = _interopRequireDefault(_react);
 var _post = __webpack_require__("./data/post.md");
 
 var _post2 = _interopRequireDefault(_post);
+
+__webpack_require__("./src/css/Profile.css");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4188,6 +4654,51 @@ exports.default = function () {
 
 /***/ }),
 
+/***/ "./src/css/About.css":
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./src/css/Gallery.css":
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./src/css/Profile.css":
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, ".profile{\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n    flex-flow: column;\r\n    border: 2px solid black;\r\n    border-radius: 10px;\r\n}\r\nimg{\r\n    width: 24%;\r\n    border-radius: 50%;\r\n    border: 2px solid red;\r\n}", ""]);
+
+// exports
+
+
+/***/ }),
+
 /***/ "./src/images/350288-tool.jpg":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4215,22 +4726,42 @@ var _server2 = _interopRequireDefault(_server);
 
 var _reactRouter = __webpack_require__("react-router");
 
+var _server3 = __webpack_require__("./node_modules/react-universal-component/server.js");
+
+var _webpackFlushChunks = __webpack_require__("./node_modules/webpack-flush-chunks/dist/flushChunks.js");
+
+var _webpackFlushChunks2 = _interopRequireDefault(_webpackFlushChunks);
+
 var _Routes = __webpack_require__("./src/components/Routes.js");
 
 var _Routes2 = _interopRequireDefault(_Routes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = function () {
+exports.default = function (_ref) {
+    var clientStats = _ref.clientStats;
     return function (req, res) {
-        res.send('<html>\n             <head>\n                 <title>My title</title>\n                 <link href="main.css" rel="stylesheet"/>\n             </head>\n             <body>\n                 <div id="react-root">' + _server2.default.renderToString(_react2.default.createElement(
+        var _flushChunks = (0, _webpackFlushChunks2.default)(clientStats, {
+            chunkNames: (0, _server3.flushChunkNames)()
+        }),
+            js = _flushChunks.js,
+            styles = _flushChunks.styles,
+            cssHash = _flushChunks.cssHash;
+
+        res.send('<html>\n             <head>\n                 <title>My title</title>\n                 ' + styles + '\n             </head>\n             <body>\n                 <div id="react-root">' + _server2.default.renderToString(_react2.default.createElement(
             _reactRouter.StaticRouter,
             { location: req.url, context: {} },
             _react2.default.createElement(_Routes2.default, null)
-        )) + '</div>\n             </body>\n             <script src="vendor-bundle.js"></script>\n             <script src="main-bundle.js"></script>\n         </html>');
+        )) + '</div>\n             </body>\n             ' + js + '\n             ' + cssHash + '\n         </html>');
     };
 };
-// import AppRoot from '../components/AppRoot'
+
+/***/ }),
+
+/***/ "fs":
+/***/ (function(module, exports) {
+
+module.exports = require("fs");
 
 /***/ }),
 
